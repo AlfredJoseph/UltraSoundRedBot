@@ -6,35 +6,49 @@ RedBotEncoder encoder = RedBotEncoder(A2, 10);  // initializes encoder on pins A
 //int buttonPin = 12;
 int countsPerRev = 192;   // 4 pairs of N-S x 48:1 gearbox = 192 ticks per wheel rev
 
-// variables used to store the left and right encoder counts.
-int lCount = 0;
-int rCount = 0;
-
-int oneMeter = 800;
-int ninetyTurn = 90;
-
-int rightSpeed = -120;
-int leftSpeed = 123;
-int turnSpeed = 80;
 
 void setup()
 {
-  pinMode(buttonPin, INPUT_PULLUP);
-  Serial.begin(9600);
-  Serial.println("left    right");
-  Serial.println("================");
 
   delay(3000);
 
-  /****************START SQUARE*********************/
+    
 
-  for (int i = 0; i < 12; i++) {
+    motors.brake();
+    delay(500);
+
+
     encoder.clearEnc(BOTH);  // Reset the counters.
+    delay(100);
+    
+
+    
+
+    motors.brake();
+    delay(500);
+  }
+
+}
+
+void loop(){}
+
+
+void Drive(int feet){
+  int ticks = feet * 300;   //distane to travel
+
+  int lCount, rCount;       //distance traveled
+
+
+  int rightSpeed = -120;
+  int leftSpeed = 123;
+  int turnSpeed = 80;
+
+
+  encoder.clearEnc(BOTH);  // Reset the counters.
 
     do {
       motors.rightMotor(rightSpeed);
       motors.leftMotor(leftSpeed);
-      //motors.drive(-120);
       
       lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
       rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
@@ -43,21 +57,33 @@ void setup()
       Serial.print(lCount);
       Serial.print("\t");
       Serial.println(rCount);
-    } while((lCount <= oneMeter) && (rCount <= oneMeter));
-
-    
+    } while((lCount <= ticks) && (rCount <= ticks));
 
     motors.brake();
-    delay(500);
-  
-    lCount = 0;
-    rCount = 0;
 
-    encoder.clearEnc(BOTH);  // Reset the counters.
-    delay(100);
-    
+    delay(100);       //REDUCE DELAY ----------------------------------------------------------
+}
 
-    do {
+void turn(char direction) {     //r for Right. l for Left
+
+  int ticks = 90;
+
+  int lCount, rCount;       //distance traveled
+
+  int turnSpeed = 0;
+
+  if (direction == r) {
+    turnSpeed = 80;
+  }
+  else () {
+    turnSpeed = -80;
+  }
+
+
+  encoder.clearEnc(BOTH);  // Reset the counters.
+
+
+  do {
       motors.rightMotor(turnSpeed);
       motors.leftMotor(turnSpeed);
       
@@ -69,12 +95,10 @@ void setup()
       Serial.print(lCount);
       Serial.print("\t");
       Serial.println(rCount);
-    } while ((lCount <= ninetyTurn) && (rCount <= ninetyTurn));
+    } while ((lCount <= ticks) && (rCount <= ));
 
-    motors.brake();
-    delay(500);
-  }
+    motors.brrake();
+
+    delay(100);   //REDUCE DELAY -------------------------------------------------------------
 
 }
-
-void loop(){}
