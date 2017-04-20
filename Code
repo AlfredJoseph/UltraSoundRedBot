@@ -1,1 +1,80 @@
+#include <RedBot.h>
+#include <RedBotSoftwareSerial.h>
+RedBotMotors motors;
 
+RedBotEncoder encoder = RedBotEncoder(A2, 10);  // initializes encoder on pins A2 and 10
+//int buttonPin = 12;
+int countsPerRev = 192;   // 4 pairs of N-S x 48:1 gearbox = 192 ticks per wheel rev
+
+// variables used to store the left and right encoder counts.
+int lCount = 0;
+int rCount = 0;
+
+int oneMeter = 800;
+int ninetyTurn = 90;
+
+int rightSpeed = -120;
+int leftSpeed = 123;
+int turnSpeed = 80;
+
+void setup()
+{
+  pinMode(buttonPin, INPUT_PULLUP);
+  Serial.begin(9600);
+  Serial.println("left    right");
+  Serial.println("================");
+
+  delay(3000);
+
+  /****************START SQUARE*********************/
+
+  for (int i = 0; i < 12; i++) {
+    encoder.clearEnc(BOTH);  // Reset the counters.
+
+    do {
+      motors.rightMotor(rightSpeed);
+      motors.leftMotor(leftSpeed);
+      //motors.drive(-120);
+      
+      lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
+      rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
+      
+      // print out to Serial Monitor the left and right encoder counts.
+      Serial.print(lCount);
+      Serial.print("\t");
+      Serial.println(rCount);
+    } while((lCount <= oneMeter) && (rCount <= oneMeter));
+
+    
+
+    motors.brake();
+    delay(500);
+  
+    lCount = 0;
+    rCount = 0;
+
+    encoder.clearEnc(BOTH);  // Reset the counters.
+    delay(100);
+    
+
+    do {
+      motors.rightMotor(turnSpeed);
+      motors.leftMotor(turnSpeed);
+      
+    // store the encoder counts to a variable.
+    lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
+    rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
+
+      // print out to Serial Monitor the left and right encoder counts.
+      Serial.print(lCount);
+      Serial.print("\t");
+      Serial.println(rCount);
+    } while ((lCount <= ninetyTurn) && (rCount <= ninetyTurn));
+
+    motors.brake();
+    delay(500);
+  }
+
+}
+
+void loop(){}
