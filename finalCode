@@ -15,6 +15,7 @@ long inches;
 void Drive(int inches);
 void turnLeft();
 void turnRight();
+void turnRightBox();
 
 long checkDistance();
 long checkSide();
@@ -35,16 +36,16 @@ int driveAfterBox;
   int distCheck = checkDistance();
 
    if (distCheck < 12) {
-    driveAfterBox = 24;
+    driveAfterBox = 30;
   }
   else if (distCheck < 24) {
-    driveAfterBox = 12;
+    driveAfterBox = 20;
   }
   else {
-    driveAfterBox = 6;
+    driveAfterBox = 15;
   }
 
-  turnRight();
+  turnRightBox();
     
   Drive(driveAfterBox);
 
@@ -84,8 +85,8 @@ void Drive(int inches){
   int lCount, rCount;       //distance traveled
 
 
-  int rightSpeed = -120;
-  int leftSpeed = 120;
+  int rightSpeed = -123;
+  int leftSpeed = 123;
   int turnSpeed = 80;
 
 
@@ -136,7 +137,36 @@ void turnLeft() {
 
 void turnRight() {
 
-  int ticks = 107;
+  int ticks = 110;
+
+  int lCount, rCount;       //distance traveled
+
+  int turnSpeed = 80;
+
+
+
+  encoder.clearEnc(BOTH);  // Reset the counters
+
+
+  do {
+      motors.rightMotor(turnSpeed);
+      motors.leftMotor(turnSpeed);
+      
+    // store the encoder counts to a variable.
+    lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
+    rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
+
+    } while ((lCount <= ticks) && (rCount <= ticks));
+
+    motors.brake();
+
+    delay(100);   //REDUCE DELAY -------------------------------------------------------------
+
+}
+
+void turnRightBox() {
+
+  int ticks = 115;
 
   int lCount, rCount;       //distance traveled
 
