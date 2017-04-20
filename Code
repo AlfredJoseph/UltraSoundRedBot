@@ -6,6 +6,8 @@ RedBotEncoder encoder = RedBotEncoder(A2, 10);  // initializes encoder on pins A
 //int buttonPin = 12;
 int countsPerRev = 192;   // 4 pairs of N-S x 48:1 gearbox = 192 ticks per wheel rev
 
+const int pwPin = A4;
+
 
 void Drive(int inches);
 void turnLeft();
@@ -21,12 +23,18 @@ void function3();
 
 void setup()
 {
+  function1();
 
+  turnRight();
 
+  function2();
 
+  function3();
+
+  function3();
 }
 
-void loop(){}
+void loop(){  //intentionally empty  }
 
 //---------------------------------------FUNCTIONS-------------------------------------------------
 //#################################################################################################
@@ -120,17 +128,18 @@ void turnRight() {
 long checkDistance() {
     pulse = pulseIn(pwPin, HIGH);
     inches = pulse / 147;
+
     return inches;
-    }
+}
     
- long checkSide() {
+long checkSide() {
     turnLeft();
     CheckDistance();
     while (checkDistance() > 18.0) {
       Drive(6.0);
       }
      turnRight();
-    }
+}
 
 
 void function1() {
@@ -153,17 +162,21 @@ void function1() {
 }
 
 void function2 () {
-    bool LeftSide = true;
-    while (LeftSide == true) {
-      Drive(12);
-      checkSide()
-      if (checkSide() > 5) {
-        LeftSide == false
-        }
-       }
-       motors.brake()
-}
 
+  bool LeftSide = true;   //true if there is something to the left
+  
+  while (LeftSide == true) {
+    Drive(12);
+
+    checkSide();
+    
+    if (checkSide() > 5.0) {
+        LeftSide == false;
+    }
+  }
+  
+  motors.brake();
+}
 
 void function3() {
 
@@ -179,5 +192,5 @@ void function3() {
 
     checkSide();
 
-  } while ((lCount <= ticks) && (rCount <= ticks))
+  } while ((lCount <= ticks) && (rCount <= ticks));
 }
