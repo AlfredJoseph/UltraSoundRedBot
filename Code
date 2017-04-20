@@ -11,6 +11,9 @@ void Drive(int inches);
 void turnLeft();
 void turnRight();
 
+long checkDistance();
+long checkSide();
+
 void function1();
 void function2();
 void function3();
@@ -114,6 +117,21 @@ void turnRight() {
 
 }
 
+long checkDistance() {
+    pulse = pulseIn(pwPin, HIGH);
+    inches = pulse / 147;
+    return inches;
+    }
+    
+ long checkSide() {
+    turnLeft();
+    CheckDistance();
+    while (checkDistance() > 18.0) {
+      Drive(6.0);
+      }
+     turnRight();
+    }
+
 
 void function1() {
 
@@ -134,6 +152,19 @@ void function1() {
   }
 }
 
+void function2 () {
+    bool LeftSide = true;
+    while (LeftSide == true) {
+      Drive(12);
+      checkSide()
+      if (checkSide() > 5) {
+        LeftSide == false
+        }
+       }
+       motors.brake()
+}
+
+
 void function3() {
 
   ticks = 500;
@@ -149,5 +180,4 @@ void function3() {
     checkSide();
 
   } while ((lCount <= ticks) && (rCount <= ticks))
-
 }
