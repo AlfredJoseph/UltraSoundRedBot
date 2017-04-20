@@ -1,0 +1,237 @@
+#include <RedBot.h>
+#include <RedBotSoftwareSerial.h>
+RedBotMotors motors;
+
+RedBotEncoder encoder = RedBotEncoder(A2, 10);  // initializes encoder on pins A2 and 10
+//int buttonPin = 12;
+int countsPerRev = 192;   // 4 pairs of N-S x 48:1 gearbox = 192 ticks per wheel rev
+
+const int pwPin = A4;
+int pulse;
+long inches;
+
+
+
+void Drive(int inches);
+void turnLeft();
+void turnRight();
+
+long checkDistance();
+long checkSide();
+
+void function1();
+void function2();
+void function3();
+
+
+void setup()
+{
+int driveAfterBox;
+  
+  delay(3000);
+  
+  function1();
+
+  int distCheck = checkDistance();
+
+   if (distCheck < 12) {
+    driveAfterBox = 24;
+  }
+  else if (distCheck < 24) {
+    driveAfterBox = 12;
+  }
+  else {
+    driveAfterBox = 6;
+  }
+
+  turnRight();
+    
+  Drive(driveAfterBox);
+
+  //function2();
+
+  turnLeft();
+
+  
+  delay(500);
+
+  motors.drive(100);
+  delay(50);
+  motors.drive(-100);
+  delay(50);
+  
+  function3();
+
+  delay(500);
+
+  motors.drive(100);
+  delay(50);
+  motors.drive(-100);
+  delay(50);
+
+  function3();
+}
+
+void loop(){    /*intentionally empty*/    }
+
+//---------------------------------------FUNCTIONS-------------------------------------------------
+//#################################################################################################
+//-------------------------------------------------------------------------------------------------
+
+void Drive(int inches){
+  int ticks = inches * 25;   //distane to travel
+
+  int lCount, rCount;       //distance traveled
+
+
+  int rightSpeed = -120;
+  int leftSpeed = 120;
+  int turnSpeed = 80;
+
+
+  encoder.clearEnc(BOTH);  // Reset the counters
+
+    do {
+      motors.rightMotor(rightSpeed);
+      motors.leftMotor(leftSpeed);
+      
+      lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
+      rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
+    
+    } while((lCount <= ticks) && (rCount <= ticks));
+
+    motors.brake();
+
+    delay(100);       //REDUCE DELAY ----------------------------------------------------------
+}
+
+void turnLeft() {
+
+  int ticks = 107;
+
+  int lCount, rCount;       //distance traveled
+
+  int turnSpeed = -80;
+
+
+
+  encoder.clearEnc(BOTH);  // Reset the counters
+
+
+  do {
+      motors.rightMotor(turnSpeed);
+      motors.leftMotor(turnSpeed);
+      
+    // store the encoder counts to a variable.
+    lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
+    rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
+
+    } while ((lCount <= ticks) && (rCount <= ticks));
+
+    motors.brake();
+
+    delay(100);   //REDUCE DELAY -------------------------------------------------------------
+
+}
+
+void turnRight() {
+
+  int ticks = 107;
+
+  int lCount, rCount;       //distance traveled
+
+  int turnSpeed = 80;
+
+
+
+  encoder.clearEnc(BOTH);  // Reset the counters
+
+
+  do {
+      motors.rightMotor(turnSpeed);
+      motors.leftMotor(turnSpeed);
+      
+    // store the encoder counts to a variable.
+    lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
+    rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
+
+    } while ((lCount <= ticks) && (rCount <= ticks));
+
+    motors.brake();
+
+    delay(100);   //REDUCE DELAY -------------------------------------------------------------
+
+}
+
+long checkDistance() {
+    pulse = pulseIn(pwPin, HIGH);
+    inches = pulse / 147;
+
+    return inches;
+}
+    
+long checkSide() {
+    turnLeft();
+    checkDistance();
+    while (checkDistance() > 18.0) {
+      Drive(6.0);
+      }
+     turnRight();
+}
+
+
+void function1() {
+
+  bool forwardDistance = true;    //true == room to Drive
+
+  if (checkDistance() < 24.0) {
+    forwardDistance = false;
+  }
+
+  while(forwardDistance) {
+    Drive(18);    //drive forward
+
+    checkSide();  //check side distance
+
+    if (checkDistance() < 24.0) {
+      forwardDistance = false;
+    }
+  }
+}
+
+void function2 () {
+
+  bool LeftSide = true;   //true if there is something to the left
+  
+  while (LeftSide == true) {
+    Drive(12);
+
+    checkSide();
+    
+    if (checkSide() > 5.0) {
+        LeftSide == false;
+    }
+  }
+  
+  motors.brake();
+}
+
+void function3() {
+
+  int ticks = 500;
+
+  int lCount, rCount;
+  
+  do {
+    Drive(20);
+
+
+    encoder.clearEnc(BOTH);   //Reset the counters
+
+    lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
+    rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
+
+    checkSide();
+
+  } while ((lCount <= ticks) && (rCount <= ticks));
+}
