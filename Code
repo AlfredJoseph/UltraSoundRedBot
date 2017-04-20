@@ -152,7 +152,6 @@ void function1() {
   }
 }
 
-
 void function2 () {
     bool LeftSide = true;
     while (LeftSide == true) {
@@ -163,4 +162,22 @@ void function2 () {
         }
        }
        motors.brake()
-       }
+}
+
+
+void function3() {
+
+  ticks = 500;
+  
+  do {
+    Drive(12);
+
+    encoder.clearEnc(BOTH);   //Reset the counters
+
+    lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
+    rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
+
+    checkSide();
+
+  } while ((lCount <= ticks) && (rCount <= ticks))
+}
