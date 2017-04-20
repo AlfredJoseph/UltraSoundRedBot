@@ -19,8 +19,9 @@ void turnRightBox();
 
 long checkDistance();
 long checkSide();
+int checkSideReturn();
 
-void function1();
+int function1();
 void function2();
 void function3();
 
@@ -31,44 +32,31 @@ int driveAfterBox;
   
   delay(3000);
   
-  function1();
+  int distCheck = function1();
 
-  int distCheck = checkDistance();
-
-   if (distCheck < 12) {
-    driveAfterBox = 30;
-  }
-  else if (distCheck < 24) {
-    driveAfterBox = 20;
-  }
-  else {
-    driveAfterBox = 15;
-  }
+   if (distCheck < 12)     {  driveAfterBox = 26;  }
+  else if (distCheck < 24) {  driveAfterBox = 15;  }
+  else                     {  driveAfterBox = 10;  }
 
   turnRightBox();
     
   Drive(driveAfterBox);
 
+  motors.brake();
+
   //function2();
 
   turnLeft();
-
-  
-  delay(500);
-
-  motors.drive(100);
-  delay(50);
-  motors.drive(-100);
-  delay(50);
   
   function3();
 
   delay(500);
 
   motors.drive(100);
-  delay(50);
+  delay(500);
   motors.drive(-100);
-  delay(50);
+  delay(500);
+  motors.brake();
 
   function3();
 }
@@ -85,11 +73,15 @@ void Drive(int inches){
   int lCount, rCount;       //distance traveled
 
 
-  int rightSpeed = -123;
-  int leftSpeed = 123;
+  int rightSpeed = -126;
+  int leftSpeed = 128;
   int turnSpeed = 80;
-
-
+  if (ticks < 0) {
+    leftSpeed = -leftSpeed;
+    rightSpeed = -rightSpeed;
+    ticks = -ticks;
+  }
+  
   encoder.clearEnc(BOTH);  // Reset the counters
 
     do {
@@ -108,7 +100,7 @@ void Drive(int inches){
 
 void turnLeft() {
 
-  int ticks = 107;
+  int ticks = 102;
 
   int lCount, rCount;       //distance traveled
 
@@ -137,7 +129,7 @@ void turnLeft() {
 
 void turnRight() {
 
-  int ticks = 110;
+  int ticks = 115;
 
   int lCount, rCount;       //distance traveled
 
@@ -203,16 +195,43 @@ long checkDistance() {
 long checkSide() {
     turnLeft();
     checkDistance();
+    
     while (checkDistance() > 18.0) {
       Drive(6.0);
       }
+    
+    while (checkDistance() < 7.0) {
+      Drive(-6.0);
+    }
+    
      turnRight();
 }
 
+int checkSideReturn() {
+    turnLeft();
+    checkDistance();
 
-void function1() {
+    int counter = 0;
+    
+    while (checkDistance() > 18.0) {
+      Drive(6.0);
+      counter++;
+      }
+    
+    while (checkDistance() < 7.0) {
+      Drive(-6.0);
+    }
+    
+     turnRight();
+
+     return counter;
+}
+
+
+int function1() {
 
   bool forwardDistance = true;    //true == room to Drive
+  int dist;
 
   if (checkDistance() < 24.0) {
     forwardDistance = false;
@@ -221,12 +240,14 @@ void function1() {
   while(forwardDistance) {
     Drive(18);    //drive forward
 
-    checkSide();  //check side distance
+    dist = checkSide();  //check side distance
 
     if (checkDistance() < 24.0) {
       forwardDistance = false;
     }
   }
+
+  return dist;
 }
 
 void function2 () {
@@ -248,20 +269,28 @@ void function2 () {
 
 void function3() {
 
-  int ticks = 500;
+  int ticks = 200;
 
-  int lCount, rCount;
+  int lCount, rCount = 0;
+
+  int count = 0;
   
   do {
     Drive(20);
 
-
+    lCount, rCount = 0;
+    
     encoder.clearEnc(BOTH);   //Reset the counters
 
     lCount = abs(encoder.getTicks(LEFT));    // read the left motor encoder
     rCount = abs(encoder.getTicks(RIGHT));   // read the right motor encoder
 
-    checkSide();
+    count = checkSideReturn();
+
+    if (count >= 2) {
+      break;
+      lCount = 2000;
+    }
 
   } while ((lCount <= ticks) && (rCount <= ticks));
 }
